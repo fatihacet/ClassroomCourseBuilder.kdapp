@@ -102,6 +102,8 @@ class CoursePaneSelector extends JView
     panel        = @getDelegate()
     builder      = panel.getDelegate()
     cssClasses   = @layoutToCssClasses[builder.layout.getOptions().layout]
+    @dropAreas   = []
+    @paneKeys    = []
     @layout      = new KDCustomHTMLView
       tagName    : "a"
       cssClass   : "start-tab-split-option"
@@ -115,7 +117,12 @@ class CoursePaneSelector extends JView
         bind     : "drop dragenter dragleave dragend dragover dragstart mousemove"
         
       @layout.addSubView dropArea
-      dropArea.on "drop", (e) => dropArea.updatePartial "<p>#{@draggingItem.getOptions().paneTitle}</p>"
+      @dropAreas.push dropArea
+      
+      dropArea.on "drop", (e) =>
+        {paneTitle, paneKey} = @draggingItem.getOptions()
+        dropArea.updatePartial "<p>#{paneTitle}</p>"
+        @paneKeys[@dropAreas.indexOf dropArea] = paneKey
         
     @paneItems   = new KDCustomHTMLView
       cssClass   : "pane-items-container"
@@ -224,5 +231,62 @@ class ClassroomCourseBuilder extends Workspace
     @on "LayoutSelected", =>
       @layout = @getActivePanel().getPaneByName("layoutSelector").selectedLayout
       @next()
+    
+    @on "PanesSelected", =>
+      @selectedPanes = @getActivePanel().getPaneByName("paneSelector").paneKeys
+      @generateCode()
+  
+  generateCode: ->
+    panelType = @layout.getOptions().layout
+    @formData.layout = @panelTypeToLayoutConfig[panelType](@selectedPanes).layout
+    @createGist (err, res) ->
+      new KDModalView 
+        title   : "Your course is ready to import"
+        overlay : yes
+        cssClass: "modal-with-text"
+        content : """
+          <p>Your course <strong>manifest.json</strong> has been created and upload to Github as Gist.</p>
+          <p>Here is your public URL to manifest.json. You can use and share this URL to import your course to Classroom App.</p>
+          <p><strong>#{res.files["manifest.json"].raw_url}</strong></p>
+        """
+    
+  createGist: (callback) ->
+    nickname = KD.nick()
+    gist     = 
+      description : """Classroom Course, created by #{nickname} using ClassroomCourseBuilder"""
+      public      : yes
+      files       :
+        "manifest.json": { content: JSON.stringify @formData, null, 2 }
+
+    vmController  = KD.getSingleton 'vmController'
+    vmController.run "mkdir -p /home/#{nickname}/.classroomcoursebuilder", (err, res) ->
+      
+      tmpFile = "/home/#{nickname}/.classroomcoursebuilder/.gist.tmp"
+      tmp     = FSHelper.createFileFromPath tmpFile
+      tmp.save JSON.stringify(gist), (err, res) ->
+        return warn "error while trying to save gist"  if err
+        
+        vmController.run "curl -kLs -A\"Koding\" -X POST https://api.github.com/gists --data @#{tmpFile}", (err, res) ->
+          callback err, JSON.parse res
+          vmController.run "rm -f #{tmpFile}"
+      
+  panelTypeToLayoutConfig:
+    triple: (paneTypes) -> 
+      layout             : 
+        direction        : "vertical"
+        sizes            : [ "35%", null ]
+        views            : [
+          { type         : paneTypes[0] }
+          {
+            type         : "split"
+            options      :
+              direction  : "horizontal"
+              sizes      : [ "50%", null ]
+            views        : [
+              { type     : paneTypes[1] }
+              { type     : paneTypes[2] }
+            ]
+          }
+        ]
 
 appView.addSubView new ClassroomCourseBuilder

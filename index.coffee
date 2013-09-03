@@ -1,8 +1,61 @@
+class CourseBuilder extends JView
+
+  constructor: (options = {}, data) ->
+    
+    super options, data
+    
+    panel                = @getDelegate()
+    workspace            = panel.getDelegate()
+    @generalDetails      = new CourseGeneralDetailsForm
+    @addNewChapterButton = new KDButtonView
+      cssClass           : "cupid-green add-course-button"
+      title              : "Add New Chapter"
+      callback           : =>
+        @generalDetails.setHeight 0
+        @generalDetails.on "transitionend", =>
+          panel.header.updatePartial """<span class="title">Add New Chapter to Course</span>"""
+        
+    @generalDetails.form.fields.Chapters.addSubView @addNewChapterButton 
+    
+    @layoutSelector = new CourseLayoutSelector
+    
+  pistachio: ->
+    """
+      {{> @generalDetails}}
+      {{> @layoutSelector}}
+    """
+
+class CourseChapterList extends KDView
+  
+  constructor: (options = {}, data) ->
+    
+    super options, data
+    
+    @listController = new KDListViewController
+      noItemFoundWidget: new KDView
+        partial     : "You don't have a chapter yet"
+        cssClass    : "no-item"
+      view          : new KDListView
+        itemClass   : CourseChapterListItem
+    ,
+      items         : @getData() or []
+    @addSubView @listController.getView()
+    
+class CourseChapterListItem extends KDListItemView
+
+  constructor: (options = {}, data) ->
+    
+    super options, data
+  
+  partial: ->
+    """ #{@getData()} """
+
 class CourseGeneralDetailsForm extends KDView
   
   constructor: (options = {}, data) ->
     
-    options.cssClass = "general-details-form"
+    options.cssClass   = "general-details-form"
+    options.bind       = "transitionend"
     
     super options, data
     
@@ -45,6 +98,9 @@ class CourseGeneralDetailsForm extends KDView
             { title     : "School Lessons"           ,     value : "school-lessons"           }
             { title     : "How To Course"            ,     value : "how-to"                   }
           ]
+        Chapters        :
+          itemClass     : CourseChapterList
+          label         : "Chapters"
 
     @addSubView @form = new KDFormViewWithFields formOptions
 
@@ -117,10 +173,7 @@ class CoursePaneSelector extends JView
       @layout.addSubView dropArea
       @dropAreas.push dropArea
       
-      dropArea.on "drop", (e) =>
-        {paneTitle, paneKey} = @draggingItem.getOptions()
-        dropArea.updatePartial "<p>#{paneTitle}</p>"
-        @paneKeys[@dropAreas.indexOf dropArea] = paneKey
+      dropArea.on "drop", (e) => @handleDrop dropArea
         
     @paneItems   = new KDCustomHTMLView
       cssClass   : "pane-items-container"
@@ -147,19 +200,40 @@ class CoursePaneSelector extends JView
     @on "ItemDragIsDone", (item) =>
       @layout.unsetClass "highlight"
       @draggingItem = null
+      
+  handleDrop: (dropArea) -> 
+    {paneTitle, paneKey} = @draggingItem.getOptions()
         
-  paneTypes: 
-    terminal     : "Terminal"
-    finder       : "Filetree"
-    editor       : "Editor"
-    tabbedEditor : "Tabbed Editor"
-    preview      : "Preview"
+    dropArea.addSubView  container = new KDView
+      cssClass: "pane-type"
+      
+    container.addSubView title = new KDCustomHTMLView
+      tagName  : "p"
+      partial  : paneTitle
+      
+    title.addSubView cog = new KDCustomHTMLView
+      cssClass : "icon cog"
+      click    : => 
+        settingsView = new PaneSettings
+          type   : paneKey
+          title  : paneTitle
+          index  : index
+        settingsView.on "SettingsFormSubmitted", ->
+  
+    index = @dropAreas.indexOf dropArea
+    @paneKeys[index] = paneKey
+        
+  paneTypes    : 
+    terminal   : "Terminal"
+    finder     : "Filetree"
+    editor     : "Editor"
+    preview    : "Preview"
     
   layoutToCssClasses:
-    single : [ "fl w100" ]
-    double : [ "fl w50", "fr w50" ]
-    triple : [ "fl w50 full-l", "fr w50 h50", "fr w50 h50" ]
-    quad   : [ "fl w50 h50", "fr w50 h50", "fl w50 h50", "fr w50 h50" ]
+    single     : [ "fl w100" ]
+    double     : [ "fl w50", "fr w50" ]
+    triple     : [ "fl w50 full-l", "fr w50 h50", "fr w50 h50" ]
+    quad       : [ "fl w50 h50", "fr w50 h50", "fl w50 h50", "fr w50 h50" ]
     
   pistachio: ->
     """
@@ -171,53 +245,31 @@ class ClassroomCourseBuilder extends Workspace
 
   constructor: (options = {}, data) ->
     
+    options.cssClass  = "classroom-course-builder"
     options.name      = "Classroom Course Builder"
     options.panels    = [
       {
         title         : "General Course Details"
         hint          : "<p>Lorem ipsum dolor sit amet</p>"
-        buttons       : [
-          {
-            title     : "Next"
-            cssClass  : "cupid-green join-button"
-            callback  : => @emit "GeneralDetailsFormPosted"
-          }
-        ]
         pane          : 
           type        : "custom"
-          name        : "generalDetails"
-          paneClass   : CourseGeneralDetailsForm
-      }
-      {
-        title         : "Layout and Panes"
-        hint          : "<p>Lorem ipsum dolor sit amet</p>"
-        buttons       : [
-          {
-            title     : "Next"
-            cssClass  : "cupid-green join-button"
-            callback  : => @emit "LayoutSelected"
-          }
-        ]
-        pane          : 
-          type        : "custom"
-          name        : "layoutSelector"
-          paneClass   : CourseLayoutSelector
+          paneClass   : CourseBuilder
       }
     ]
     
     super options, data
     
-    @on "GeneralDetailsFormPosted", =>
-      @formData = @getActivePanel().getPaneByName("generalDetails").form.getFormData()
+    @on "GeneralDetailsFormPosted", (panel) =>
+      @formData = panel.getPaneByName("generalDetails").form.getFormData()
       @next()
       
-    @on "LayoutSelected", =>
-      @layout = @getActivePanel().getPaneByName("layoutSelector").selectedLayout
+    @on "LayoutSelected", (panel) =>
+      @layout = panel.getPaneByName("layoutSelector").selectedLayout
       @next()
     
-    @on "PanesSelected", =>
-      @selectedPanes = @getActivePanel().getPaneByName("paneSelector").paneKeys
-      @generateCode()
+    @on "PanesSelected", (panel) =>
+      @selectedPanes = panel.getPaneByName("paneSelector").paneKeys
+      @next()
   
   generateCode: ->
     panelType = @layout.getOptions().layout
@@ -271,5 +323,64 @@ class ClassroomCourseBuilder extends Workspace
             ]
           }
         ]
+        
+class PaneSettings extends KDObject
+
+  constructor: (options = {}, data) ->
+    
+    super options, data
+    
+    if options.type is "preview"
+      fields               =
+        defaultUrl         : 
+          label            : "Default URL"
+          type             : "text"
+          name             : "defaultUrl"
+          
+    else if options.type is "editor"
+      fields               =
+        editorType         : 
+          label            : "Editor Type"
+          name             : "type"
+          type             : "select"
+          defaultValue     : "editor"
+          selectOptions    : [
+            { title        : "Tabbed Editor", value: "tabbedEditor" }
+            { title        : "Editor",        value: "editor" }
+          ]
+          
+    else if options.type is "terminal"
+      fields               =
+        defaultUrl         : 
+          label            : "Initial Command"
+          type             : "text"
+          name             : "initialCommand"
+    
+    else if options.type is "finder"
+      fields               =
+        rootPath           : 
+          label            : "Root Path"
+          type             : "text"
+          name             : "path"
+          
+    @modal                 = new KDModalViewWithForms
+      title                : "#{@getOptions().title} Settings"
+      overlay              : yes
+      content              : ""
+      tabs                 :
+        forms              :
+          settings         : 
+            fields         : fields
+            buttons        : 
+              save         :
+                title      : "Save"
+                cssClass   : "modal-clean-green"
+                callback   : =>
+                  debugger
+                  @emit "SettingsFormSubmitted"
+              cancel       : 
+                title      : "Cancel"
+                cssClass   : "modal-cancel"
+                callback   : => @modal.destroy()
 
 appView.addSubView new ClassroomCourseBuilder

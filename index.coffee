@@ -56,30 +56,28 @@ class CourseLayoutSelector extends JView
     
     super options, data
     
-    @single   = new KDView
-      partial : '<a class="start-tab-split-option" href="#"><span class="fl w100"></span></a>'
-      layout  : "single"
-      click   : => @selectLayout @single
+    layouts   = 
+      single  : """<a class="start-tab-split-option" href="#"><span class="fl w100"></span></a>"""
+      double  : """<a class="start-tab-split-option" href="#"><span class="fl w50"></span><span class="fr w50"></span></a>"""
+      triple  : """<a class="start-tab-split-option" href="#"><span class="fl w50 full-l"></span><span class="fr w50 h50"></span><span class="fr w50 h50"></span></a>"""
+      quad    : """<a class="start-tab-split-option" href="#"><span class="fl w50 h50"></span><span class="fr w50 h50"></span><span class="fl w50 h50"></span><span class="fr w50 h50"></span></a>"""
       
-    @double   = new KDView
-      partial : '<a class="start-tab-split-option" href="#"><span class="fl w50"></span><span class="fr w50"></span></a>'
-      layout  : "double"
-      click   : => @selectLayout @double
-      
-    @triple   = new KDView
-      partial : '<a class="start-tab-split-option" href="#"><span class="fl w50 full-l"></span><span class="fr w50 h50"></span><span class="fr w50 h50"></span></a>'
-      layout  : "triple"
-      click   : => @selectLayout @triple
-      
-    @quad     = new KDView
-      partial : '<a class="start-tab-split-option" href="#"><span class="fl w50 h50"></span><span class="fr w50 h50"></span><span class="fl w50 h50"></span><span class="fr w50 h50"></span></a>'
-      layout  : "quad"
-      click   : => @selectLayout @quad
-  
+    for layoutKey, markup of layouts
+      do (layoutKey) =>
+        @[layoutKey] = new KDView
+          partial    : markup
+          layout     : layoutKey
+          click      : => @selectLayout @[layoutKey]
+    
   selectLayout: (layout) ->
     @selectedLayout?.unsetClass "selected"
     layout.setClass "selected"
     @selectedLayout = layout
+    
+    @paneSelector?.destroy()
+    @addSubView @paneSelector = new CoursePaneSelector 
+      delegate: @getDelegate()
+      layout  : layout.getOptions().layout
     
   pistachio: ->
     """
@@ -101,7 +99,7 @@ class CoursePaneSelector extends JView
     
     panel        = @getDelegate()
     builder      = panel.getDelegate()
-    cssClasses   = @layoutToCssClasses[builder.layout.getOptions().layout]
+    cssClasses   = @layoutToCssClasses[@getOptions().layout]
     @dropAreas   = []
     @paneKeys    = []
     @layout      = new KDCustomHTMLView
@@ -111,7 +109,7 @@ class CoursePaneSelector extends JView
         href     : "#"
         
     cssClasses.forEach (cssClass) =>
-      dropArea = new KDCustomHTMLView
+      dropArea   = new KDCustomHTMLView
         tagName  : "span"
         cssClass : cssClass
         bind     : "drop dragenter dragleave dragend dragover dragstart mousemove"
@@ -151,11 +149,11 @@ class CoursePaneSelector extends JView
       @draggingItem = null
         
   paneTypes: 
-    "terminal"     : "Terminal"
-    "finder"       : "Filetree"
-    "editor"       : "Editor"
-    "tabbedEditor" : "Tabbed Editor"
-    "preview"      : "Preview"
+    terminal     : "Terminal"
+    finder       : "Filetree"
+    editor       : "Editor"
+    tabbedEditor : "Tabbed Editor"
+    preview      : "Preview"
     
   layoutToCssClasses:
     single : [ "fl w100" ]
@@ -176,7 +174,7 @@ class ClassroomCourseBuilder extends Workspace
     options.name      = "Classroom Course Builder"
     options.panels    = [
       {
-        title         : "Step 1 - General Course Details"
+        title         : "General Course Details"
         hint          : "<p>Lorem ipsum dolor sit amet</p>"
         buttons       : [
           {
@@ -191,7 +189,7 @@ class ClassroomCourseBuilder extends Workspace
           paneClass   : CourseGeneralDetailsForm
       }
       {
-        title         : "Step 2 - Choose Your Layout"
+        title         : "Layout and Panes"
         hint          : "<p>Lorem ipsum dolor sit amet</p>"
         buttons       : [
           {
@@ -204,21 +202,6 @@ class ClassroomCourseBuilder extends Workspace
           type        : "custom"
           name        : "layoutSelector"
           paneClass   : CourseLayoutSelector
-      }
-      {
-        title         : "Step 3 - Assign Your Panes"
-        hint          : "<p>Lorem ipsum dolor sit amet</p>"
-        buttons       : [
-          {
-            title     : "Next"
-            cssClass  : "cupid-green join-button"
-            callback  : => @emit "PanesSelected"
-          }
-        ]
-        pane          : 
-          type        : "custom"
-          name        : "paneSelector"
-          paneClass   : CoursePaneSelector
       }
     ]
     

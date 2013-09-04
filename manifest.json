@@ -1,0 +1,49 @@
+{
+  "devMode": true,
+  "experimental": false,
+  "authorNick": "alexdesouza",
+  "multiple": false,
+  "background": false,
+  "hiddenHandle": false,
+  "forceUpdate": false,
+  "openWith": "lastActive",
+  "behavior": "application",
+  "version": "0.1",
+  "name": "ClassroomCourseBuilder",
+  "identifier": "com.koding.apps.classroomcoursebuilder",
+  "path": "~/Applications/ClassroomCourseBuilder.kdapp",
+  "homepage": "alexdesouza.localhost/classroomcoursebuilder",
+  "author": "Alex De Souza",
+  "repository": "git://github.com/alexdesouza/classroomcoursebuilder.kdapp.git",
+  "description": "ClassroomCourseBuilder : a Koding application created with the blank template.",
+  "category": "web-app",
+  "source": {
+    "blocks": {
+      "app": {
+        "files": [
+          "./app/panesettings.coffee",
+          "./app/layoutselector.coffee",
+          "./app/paneselector.coffee",
+          "./app/chapterlistitem.coffee",
+          "./app/chapterlist.coffee",
+          "./app/generaldetails.coffee",
+          "./app/coursebuilder.coffee",
+          "./app/classroomcoursebuilder.coffee",
+          "./index.coffee"
+        ]
+      }
+    },
+    "stylesheets": [
+      "./resources/style.css"
+    ]
+  },
+  "options": {
+    "type": "tab"
+  },
+  "icns": {
+    "128": "./resources/icon.128.png"
+  },
+  "screenshots": [],
+  "menu": [],
+  "fileTypes": []
+}

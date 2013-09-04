@@ -1,0 +1,85 @@
+.classroomcoursebuilder .general-details-form {
+  transition: height .202s ease-in;
+}
+.classroomcoursebuilder .general-details-form label {
+  width : 150px;
+}
+.classroomcoursebuilder .general-details-form .description textarea {
+  height : 50px;
+}
+.classroomcoursebuilder .layouts-container {
+  background: #E5E5E5;
+}
+.classroomcoursebuilder .layouts-container .kdview {
+  float: left;
+  width: 200px;
+  height: 140px;
+  margin: 40px;
+}
+.classroomcoursebuilder .layouts-container .start-tab-split-option {
+  width: 180px;
+  height: 120px;
+  margin: 10px;
+}
+.classroomcoursebuilder .layouts-container {
+  overflow: hidden;
+}
+.classroomcoursebuilder .layouts-container .selected .start-tab-split-option {
+  background: #FF9200;
+}
+.classroomcoursebuilder .pane-selector .start-tab-split-option {
+  width: 440px;
+  height: 360px;
+  margin: 20px;
+  float: left;
+}
+.classroomcoursebuilder .pane-items-container div {
+  padding: 8px 16px;
+  border: 1px solid #ea8400;
+  background: #ff9200;
+  color: #fff;
+  border-radius: 4px;
+  width: auto;
+  margin-bottom: 10px;
+  cursor: move;
+  width: 85px;
+}
+.classroomcoursebuilder .pane-items-container {
+  float: left;
+  margin-top: 20px;
+}
+.classroomcoursebuilder .start-tab-split-option.highlight span {
+  background: rgba(165, 218, 148, .6)
+}
+.classroomcoursebuilder .start-tab-split-option span .pane-type {
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+  top: 50%;
+  margin-top: -14px;
+  height: 26px;
+}
+.classroomcoursebuilder .start-tab-split-option.highlight span .pane-type {
+  opacity: 0.5;
+}
+.classroomcoursebuilder .start-tab-split-option .pane-type .cog {
+  background: url("https://koding.com/images/_kd.sprites.png");
+  margin-left: 6px;
+  display: inline-block;
+  background-position: -3px -321px;
+  height: 16px;
+  width: 16px;
+}
+.classroomcoursebuilder .start-tab-split-option:hover .cog {
+  background-position: -23px -321px;
+}
+.classroomcoursebuilder .no-item {
+  margin-top: 3px;
+}
+.classroomcoursebuilder .add-course-button {
+  position: absolute;
+  right: 20px;
+  margin-top: -20px;
+  z-index: 4000;
+}

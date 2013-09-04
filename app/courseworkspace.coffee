@@ -11,15 +11,15 @@ class ClassroomCourseWorkspace extends Workspace
         buttons       : [
           title       : "Save"
           cssClass    : "cupid-green join-button"
-          callback    : -> @emit "CourseSaveRequested"
+          callback    : => @emit "CourseSaveRequested"
         ,
-            title     : "Save Chapter"
-            cssClass  : "cupid-green hidden"
-            callback  : -> @emit "ChapterSaveRequested"
+          title       : "Save Chapter"
+          cssClass    : "cupid-green hidden"
+          callback    : => @emit "ChapterSaveRequested"
         ,
-            title     : "Cancel"
-            cssClass  : "clean-gray join-button hidden"
-            callback  : (panel) => @emit "ChapterAddingCancelled", panel
+          title       : "Cancel"
+          cssClass    : "clean-gray join-button hidden"
+          callback    : (panel) => @emit "ChapterAddingCancelled", panel
         ]
         pane          : 
           type        : "custom"

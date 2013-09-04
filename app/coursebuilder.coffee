@@ -14,6 +14,10 @@ class CourseBuilder extends JView
         @generalDetails.setHeight 0
         @showHideButtons panel, "show", "Add New Chapter to Course"
           
+    workspace.on "CourseSaveRequested", => @saveCourse panel, workspace
+    
+    workspace.on "ChapterSaveRequested", => @saveChapter panel, workspace
+    
     workspace.on "ChapterAddingCancelled", (panel) =>
       @generalDetails.setHeight "100", "%"
       @showHideButtons panel, "hide", "General Course Details"
@@ -21,6 +25,10 @@ class CourseBuilder extends JView
     @generalDetails.form.fields.Chapters.addSubView @addNewChapterButton 
     
     @layoutSelector = new CourseLayoutSelector
+    
+  saveChapter: (panel, workspace) ->
+    log panel, workspace
+    debugger
     
   showHideButtons: (panel, eventName, title) ->
     @generalDetails.on "transitionend", =>

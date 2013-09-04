@@ -29,6 +29,36 @@ class CourseLayoutSelector extends JView
       delegate: @
       layout  : layout.getOptions().layout
     
+    @editorWorkspace?.destroy()
+    @addSubView @editorWorkspace = new Workspace
+      cssClass               : "editor-workspace"
+      panels                 : [
+        layout               : 
+          direction          : "vertical"
+          sizes              : [ "60%", null ]
+          views              : [
+            {
+              type           : "editor"
+              title          : "Config Editor"
+              name           : "configEditor"
+              initialContent : settings.config
+            }
+            {
+              type           : "custom"
+              paneClass      : MarkdownView
+              name           : "markdownEditor"
+            }
+          ]
+      ]
+      
+  selectInitialLayout: ->
+    @double.getDomElement().trigger "click"
+    @editorWorkspace.getActivePanel().getPaneByName("configEditor").ace.setSyntax "coffee"
+    
+  viewAppended : ->
+    super 
+    @selectInitialLayout()
+    
   pistachio: ->
     """
       <div class="layouts-container">

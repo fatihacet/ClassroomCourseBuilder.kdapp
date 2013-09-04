@@ -88,7 +88,7 @@ class CoursePaneSelector extends JView
     double     : [ "fl w50", "fr w50" ]
     triple     : [ "fl w50 full-l", "fr w50 h50", "fr w50 h50" ]
     quad       : [ "fl w50 h50", "fr w50 h50", "fl w50 h50", "fr w50 h50" ]
-    
+  
   pistachio: ->
     """
       {{> @layout}}

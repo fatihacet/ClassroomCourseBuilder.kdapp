@@ -1,1 +1,1 @@
-appView.addSubView new ClassroomCourseBuilder
+appView.addSubView new ClassroomCourseWorkspace

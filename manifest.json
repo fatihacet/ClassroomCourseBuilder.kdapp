@@ -21,14 +21,16 @@
     "blocks": {
       "app": {
         "files": [
+          "./app/settings.coffee",
           "./app/panesettings.coffee",
           "./app/layoutselector.coffee",
           "./app/paneselector.coffee",
+          "./app/markdownview.coffee",
           "./app/chapterlistitem.coffee",
           "./app/chapterlist.coffee",
           "./app/generaldetails.coffee",
           "./app/coursebuilder.coffee",
-          "./app/classroomcoursebuilder.coffee",
+          "./app/courseworkspace.coffee",
           "./index.coffee"
         ]
       }

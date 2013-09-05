@@ -29,12 +29,11 @@ class CourseBuilder extends JView
     manifest          = settings.manifest generalDetails.name
     manifest[key]     = value for key, value of generalDetails
     manifest.chapters = []
-    jsonFiles         = {}
-    jsFiles           = {}
+    gistFiles         = {}
     
     for chapter, index in @chapters
       layoutFileName  = "chapter#{index}-layout.json"
-      configFileName  = "chapter#{index}-config.js"
+      configFileName  = "chapter#{index}-config.coffee"
       
       manifest.chapters.push
         title         : chapter.title
@@ -45,30 +44,22 @@ class CourseBuilder extends JView
         layoutPath    : "./#{layoutFileName}"
         configPath    : "./#{configFileName}"
       
-      jsonFiles[layoutFileName] = settings.panelTypeToLayoutConfig[chapter.layout] chapter.panes
+      gistFiles[layoutFileName] = 
+        content : JSON.stringify settings.panelTypeToLayoutConfig[chapter.layout](chapter.panes), null, 2
       
-    gistFiles         = 
-      "manifest.json" : { content: JSON.stringify manifest, null, 2 }
+      gistFiles[configFileName] = content: chapter.config
       
-    for fileName, content of jsonFiles
-      gistFiles[fileName] = { content: JSON.stringify content, null, 2 }
-      
-    # for fileName, content of jsFiles
-        
-    jsonGist          = 
+    gistFiles["manifest.json"]  = { content: JSON.stringify manifest, null, 2 }
+    
+    gist              = 
       description     : """#{generalDetails.name}, created by #{nickname} using ClassroomCourseBuilder.kdapp"""
       public          : yes
       files           : gistFiles
       
-    jsFiles           = 
-      description     : """#{generalDetails.name}, created by #{nickname} using ClassroomCourseBuilder.kdapp"""
-      public          : yes
-      files           : jsFiles
-      
     vmController.run "mkdir -p /home/#{nickname}/.classroomcoursebuilder", (err, res) ->
       tmpFile         = "/home/#{nickname}/.classroomcoursebuilder/.gist.tmp"
       tmp             = FSHelper.createFileFromPath tmpFile
-      tmp.save JSON.stringify(jsonGist), (err, res) ->
+      tmp.save JSON.stringify(gist), (err, res) ->
         return warn "error while trying to save gist"  if err
         
         vmController.run "curl -kLs -A\"Koding\" -X POST https://api.github.com/gists --data @#{tmpFile}", (err, res) ->
@@ -99,12 +90,10 @@ class CourseBuilder extends JView
       panes           : paneSelector.paneKeys
       readme          : KD.utils.applyMarkdown panel.getPaneByName("markdownEditor").markdownField.getValue()
         
-    KD.utils.compileCoffeeOnClient configCode, (compiled) =>
-      return warn err if err
-      chapterData.config = compiled
-      @chapters.push chapterData
-      @generalDetails.emit "NewChapterAdded", chapterData
-      @addNewChapterWorkspace.emit "ChapterAddingCancelled" # event name is not consist
+    chapterData.config = configCode
+    @chapters.push chapterData
+    @generalDetails.emit "NewChapterAdded", chapterData
+    @addNewChapterWorkspace.emit "ChapterAddingCancelled" # event name is not consist
 
   addNewChapterButton: ->
     @addNewChapterButton = new KDButtonView

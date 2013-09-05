@@ -24,6 +24,7 @@ class ClassroomCourseWorkspace extends Workspace
         pane          : 
           type        : "custom"
           paneClass   : CourseBuilder
+          name        : "courseBuilder"
       }
     ]
     

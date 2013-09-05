@@ -3,7 +3,6 @@ class CourseGeneralDetailsForm extends KDView
   constructor: (options = {}, data) ->
     
     options.cssClass   = "general-details-form"
-    options.bind       = "transitionend"
     
     super options, data
     
@@ -47,7 +46,10 @@ class CourseGeneralDetailsForm extends KDView
             { title     : "How To Course"            ,     value : "how-to"                   }
           ]
         Chapters        :
-          itemClass     : CourseChapterList
           label         : "Chapters"
+          itemClass     : CourseChapterList
 
     @addSubView @form = new KDFormViewWithFields formOptions
+    
+    @on "NewChapterAdded", (chapterData) =>
+      @form.inputs.Chapters.listController.addItem chapterData

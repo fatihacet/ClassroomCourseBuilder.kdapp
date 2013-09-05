@@ -12,4 +12,5 @@ class CourseChapterList extends KDView
         itemClass   : CourseChapterListItem
     ,
       items         : @getData() or []
+
     @addSubView @listController.getView()

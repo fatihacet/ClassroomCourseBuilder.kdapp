@@ -29,6 +29,8 @@
           "./app/chapterlistitem.coffee",
           "./app/chapterlist.coffee",
           "./app/generaldetails.coffee",
+          "./app/chapterdetails.coffee",
+          "./app/addnewchapterworkspace.coffee",
           "./app/coursebuilder.coffee",
           "./app/courseworkspace.coffee",
           "./index.coffee"

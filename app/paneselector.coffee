@@ -1,4 +1,4 @@
-class CoursePaneSelector extends JView
+class PaneSelector extends JView
   
   constructor: (options = {}, data) ->
     

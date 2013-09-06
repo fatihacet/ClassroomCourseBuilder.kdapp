@@ -1,5 +1,6 @@
-.classroomcoursebuilder .general-details-form {
-  transition: height .202s ease-in;
+
+.classroom-course-builder {
+  transition: height .404s ease-in;
 }
 .classroomcoursebuilder .general-details-form label {
   width : 150px;
@@ -88,7 +89,7 @@
 .classroomcoursebuilder .add-course-button {
   position: absolute;
   right: 20px;
-  margin-top: -20px;
+  top: 15px;
   z-index: 4000;
 }
 .classroomcoursebuilder .readme-editor {
@@ -106,4 +107,16 @@
 }
 .classroomcoursebuilder .editor-workspace {
   border-top: 1px solid #CCC;
+}
+.classroomcoursebuilder .chapter-list-item {
+  height: 34px;
+}
+.classroomcoursebuilder .chapter-list-item .start-tab-split-option {
+  float: left;
+}
+.classroomcoursebuilder .chapter-list-item h2 {
+  float: left;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 32px;
 }

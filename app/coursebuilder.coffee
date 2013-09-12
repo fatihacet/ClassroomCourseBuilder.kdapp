@@ -32,7 +32,6 @@ class CourseBuilder extends JView
     gistFiles         = {}
     
     for chapter, index in @chapters
-      layoutFileName  = "chapter#{index}-layout.json"
       configFileName  = "chapter#{index}-config.coffee"
       
       manifest.chapters.push
@@ -40,14 +39,16 @@ class CourseBuilder extends JView
         icon          : "https://koding.com/apple-touch-icon-114x114-precomposed.png"
         description   : chapter.readme
         subscription  : "free"
-        resourcesPath : "./"
-        layoutPath    : "./#{layoutFileName}"
-        configPath    : "./#{configFileName}"
+        resourcesPath : "./#{configFileName}"
       
-      gistFiles[layoutFileName] = 
-        content : JSON.stringify settings.panelTypeToLayoutConfig[chapter.layout](chapter.panes), null, 2
+      configCode = 
+        """
+          config = 
+          #{settings.getLayoutConfig chapter.layout, chapter.panes}
+          #{chapter.config}
+        """
       
-      gistFiles[configFileName] = content: chapter.config
+      gistFiles[configFileName] = content: configCode
       
     gistFiles["manifest.json"]  = { content: JSON.stringify manifest, null, 2 }
     
